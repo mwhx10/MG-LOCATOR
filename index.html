@@ -96,13 +96,13 @@
   <div id="rightTool" class="tool">
     <div class="row">
       <div>
-        <h2 id="r-cc-label">Right CC view</h2><canvas id="r-cc" width="320" height="320"></canvas>
+        <h2 id="r-cc-label">Right CC view</h2><canvas id="r-cc" width="350" height="350"></canvas>
       </div>
       <div>
-        <h2 id="r-mlo-label">Right MLO view</h2><canvas id="r-mlo" width="320" height="320"></canvas>
+        <h2 id="r-mlo-label">Right MLO view</h2><canvas id="r-mlo" width="350" height="350"></canvas>
       </div>
       <div>
-        <h2>Clock‑face</h2><canvas id="r-clock" width="320" height="320"></canvas>
+        <h2>Clock‑face</h2><canvas id="r-clock" width="350" height="350"></canvas>
       </div>
     </div>
     <p id="msgR"></p>
@@ -112,13 +112,13 @@
   <div id="leftTool" class="tool">
     <div class="row">
       <div>
-        <h2 id="l-cc-label">Left CC view</h2><canvas id="l-cc" width="320" height="320"></canvas>
+        <h2 id="l-cc-label">Left CC view</h2><canvas id="l-cc" width="350" height="350"></canvas>
       </div>
       <div>
-        <h2 id="l-mlo-label">Left MLO view</h2><canvas id="l-mlo" width="320" height="320"></canvas>
+        <h2 id="l-mlo-label">Left MLO view</h2><canvas id="l-mlo" width="350" height="350"></canvas>
       </div>
       <div>
-        <h2>Clock‑face</h2><canvas id="l-clock" width="320" height="320"></canvas>
+        <h2>Clock‑face</h2><canvas id="l-clock" width="350" height="350"></canvas>
       </div>
     </div>
     <p id="msgL"></p>
@@ -192,7 +192,7 @@
         ccCtx.clearRect(0, 0, ccCan.width, ccCan.height); const s = scale(ccCan), { cx, cy } = center(ccCan); ccCtx.save(); ccCtx.translate(cx, cy); ccCtx.scale(1, -1);
         ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, Math.PI / 2, 3 * Math.PI / 2); ccCtx.stroke();
         ccCtx.beginPath(); ccCtx.moveTo(0, -R * s); ccCtx.lineTo(0, R * s); ccCtx.stroke();
-        ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 2; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(-R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
+        ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 3; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(-R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
         ccCtx.fillStyle = '#000'; ccCtx.beginPath(); ccCtx.arc(-R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
       }
       function drawMLOBase() {
@@ -200,7 +200,7 @@
         mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, 5 * Math.PI / 3, 2 * Math.PI / 3, true); mloCtx.stroke();
         const p1 = { x: Math.cos(5 * Math.PI / 3) * R, y: Math.sin(5 * Math.PI / 3) * R }; const p2 = { x: Math.cos(2 * Math.PI / 3) * R, y: Math.sin(2 * Math.PI / 3) * R };
         mloCtx.beginPath(); mloCtx.moveTo(p1.x * s, p1.y * s); mloCtx.lineTo(p2.x * s, p2.y * s); mloCtx.stroke();
-        const nip = { x: -SQ3 * 1.5, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 2; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
+        const nip = { x: -SQ3 * 1.5, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 3; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
         mloCtx.fillStyle = '#000'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
       }
       function drawClockBase() {
@@ -219,7 +219,7 @@
         // 12‑6 o'clock dotted line
         ckCtx.setLineDash([6, 9]);
         ckCtx.strokeStyle = '#c8adf0';
-        ckCtx.lineWidth = 2;
+        ckCtx.lineWidth = 3;
         const cosC = Math.cos(ccAngle), sinC = Math.sin(ccAngle);
         ckCtx.beginPath();
         ckCtx.moveTo(-R * s * cosC, -R * s * sinC);
@@ -230,7 +230,7 @@
         // paddles tangent to the circle at 12 and 6 o'clock
         const padHalf = R * 0.17 * s;      // paddle length in px
         ckCtx.strokeStyle = "#c8adf0";
-        ckCtx.lineWidth = 7;
+        ckCtx.lineWidth = 11;
         ckCtx.beginPath();
         const pxC = R * 1.06 * s * cosC, pyC = R * 1.06 * s * sinC;
         const tCosC = Math.cos(ccAngle + Math.PI / 2), tSinC = Math.sin(ccAngle + Math.PI / 2);
@@ -243,7 +243,7 @@
         /* —---- NEW:  MLO line and paddle ----- */
         ckCtx.setLineDash([6, 9]);            // dotted
         ckCtx.strokeStyle = '#e997ab';       // thin pink
-        ckCtx.lineWidth = 2;
+        ckCtx.lineWidth = 3;
 
         const cosA = Math.cos(mloAngle), sinA = Math.sin(mloAngle);
         ckCtx.beginPath();
@@ -255,7 +255,7 @@
 
         // draggable paddles at both ends of MLO line
         ckCtx.strokeStyle = '#e997ab';
-        ckCtx.lineWidth = 7;
+        ckCtx.lineWidth = 11;
         ckCtx.beginPath();
         const px = R * 1.06 * s * cosA, py = R * 1.06 * s * sinA;
         const tCos = Math.cos(mloAngle + Math.PI / 2), tSin = Math.sin(mloAngle + Math.PI / 2);
@@ -445,14 +445,14 @@
         ccCtx.clearRect(0, 0, ccCan.width, ccCan.height); const s = scale(ccCan), { cx, cy } = center(ccCan); ccCtx.save(); ccCtx.translate(cx, cy); ccCtx.scale(1, -1);
         ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, 3 * Math.PI / 2, Math.PI / 2); ccCtx.stroke();
         ccCtx.beginPath(); ccCtx.moveTo(0, -R * s); ccCtx.lineTo(0, R * s); ccCtx.stroke();
-        ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 2; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
+        ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 3; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
         ccCtx.fillStyle = '#000'; ccCtx.beginPath(); ccCtx.arc(R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
       }
       function drawMLOBase() {
         mloCtx.clearRect(0, 0, mloCan.width, mloCan.height); const s = scale(mloCan), { cx, cy } = center(mloCan); mloCtx.save(); mloCtx.translate(cx, cy); mloCtx.scale(1, -1);
         mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, Math.PI / 3, -2 * Math.PI / 3, true); mloCtx.stroke();
         const p1 = { x: 1.5, y: 2.598 }, p2 = { x: -1.5, y: -2.598 }; mloCtx.beginPath(); mloCtx.moveTo(p1.x * s, p1.y * s); mloCtx.lineTo(p2.x * s, p2.y * s); mloCtx.stroke();
-        const nip = { x: 2.598, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 2; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
+        const nip = { x: 2.598, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 3; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
         mloCtx.fillStyle = '#000'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
       }
       function drawClockBase() {
@@ -471,7 +471,7 @@
         // 12‑6 o'clock dotted line
         ckCtx.setLineDash([6, 9]);
         ckCtx.strokeStyle = '#c8adf0';
-        ckCtx.lineWidth = 2;
+        ckCtx.lineWidth = 3;
         const cosC = Math.cos(ccAngle), sinC = Math.sin(ccAngle);
         ckCtx.beginPath();
         ckCtx.moveTo(R * s * cosC, -R * s * sinC);
@@ -482,7 +482,7 @@
         // paddles tangent to the circle at 12 and 6 o'clock
         const padHalf = R * 0.17 * s;      // paddle length in px
         ckCtx.strokeStyle = "#c8adf0";
-        ckCtx.lineWidth = 7;
+        ckCtx.lineWidth = 11;
         ckCtx.beginPath();
         const pxC = R * 1.06 * s * cosC, pyC = -R * 1.06 * s * sinC;
         const tCosC = Math.sin(ccAngle), tSinC = Math.cos(ccAngle);
@@ -496,7 +496,7 @@
         /* —---- NEW:  MLO line and paddle ----- */
         ckCtx.setLineDash([6, 9]);            // dotted
         ckCtx.strokeStyle = '#e997ab';       // thin pink
-        ckCtx.lineWidth = 2;
+        ckCtx.lineWidth = 3;
 
         const cosA = Math.cos(mloAngle), sinA = Math.sin(mloAngle);
         ckCtx.beginPath();
@@ -508,7 +508,7 @@
 
         // draggable paddles at both ends of MLO line
         ckCtx.strokeStyle = '#e997ab';
-        ckCtx.lineWidth = 7;
+        ckCtx.lineWidth = 11;
         ckCtx.beginPath();
         const px = R * 1.06 * s * cosA, py = -R * 1.06 * s * sinA;
         const tCos = Math.sin(mloAngle), tSin = Math.cos(mloAngle);

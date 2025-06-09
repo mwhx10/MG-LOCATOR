@@ -146,7 +146,8 @@
       const msg = document.getElementById('msgR');
       const ccCtx = ccCan.getContext('2d'), mloCtx = mloCan.getContext('2d'), ckCtx = ckCan.getContext('2d');
       // State
-      let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d3 = null, d4 = null;
+      let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d3 = null, d4 = null,
+          mloAngle = Math.PI / 4, dragMLO = false, dragSide = 0;
       // Helpers
       function scale(c) { return Math.min(c.width, c.height) * PX_SCALE / R; }
       function center(c) { return { cx: c.width / 2, cy: c.height / 2 }; }
@@ -208,18 +209,30 @@
         ckCtx.lineTo( padHalf, -R * 1.05 * s);
         ckCtx.stroke();
 
-        /* —---- NEW:  45 degrees pink dotted line ----- */
+        /* —---- NEW:  MLO line and paddle ----- */
         ckCtx.setLineDash([6, 9]);            // dotted
         ckCtx.strokeStyle = '#e997ab';       // thin pink
         ckCtx.lineWidth = 2;
 
-        const r45 = (R / Math.SQRT2) * s;    // radius along 45°
+        const cosA = Math.cos(mloAngle), sinA = Math.sin(mloAngle);
         ckCtx.beginPath();
-        ckCtx.moveTo(-r45, -r45);
-        ckCtx.lineTo(r45, r45);              // stop at the circle, not beyond
+        ckCtx.moveTo(-R * s * cosA, -R * s * sinA);
+        ckCtx.lineTo(R * s * cosA, R * s * sinA); // stop at the circle, not beyond
         ckCtx.stroke();
 
         ckCtx.setLineDash([]);               // reset dashes
+
+        // draggable paddles at both ends of MLO line
+        ckCtx.strokeStyle = '#e997ab';
+        ckCtx.lineWidth = 7;
+        ckCtx.beginPath();
+        const px = R * 1.05 * s * cosA, py = R * 1.05 * s * sinA;
+        const tCos = Math.cos(mloAngle + Math.PI / 2), tSin = Math.sin(mloAngle + Math.PI / 2);
+        ckCtx.moveTo(px - padHalf * tCos, py - padHalf * tSin);
+        ckCtx.lineTo(px + padHalf * tCos, py + padHalf * tSin);
+        ckCtx.moveTo(-px - padHalf * tCos, -py - padHalf * tSin);
+        ckCtx.lineTo(-px + padHalf * tCos, -py + padHalf * tSin);
+        ckCtx.stroke();
 
         // center dot (above radiating lines)
         ckCtx.fillStyle = '#666'; ckCtx.beginPath(); ckCtx.arc(0, 0, 10, 0, 2 * Math.PI); ckCtx.fill();
@@ -227,9 +240,11 @@
       }
       function redrawAll() {
         drawCCBase(); drawMLOBase(); drawClockBase();
-        // CC point
+
+      // CC point
         if (ccPt) { const { pxX, pxY } = mathToPx(ccCan, ccPt.x, ccPt.y); ccCtx.fillStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.arc(pxX, pxY, DOT_R, 0, 2 * Math.PI); ccCtx.fill(); }
         if (ccBad) { drawBlueX(ccCtx, ccBad.pxX, ccBad.pxY); } 
+      
         // MLO point
         if (mloPt) { const { pxX, pxY } = mathToPx(mloCan, mloPt.x, mloPt.y); mloCtx.fillStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.arc(pxX, pxY, DOT_R, 0, 2 * Math.PI); mloCtx.fill(); }
         if (mloBad) { drawBlueX(mloCtx, mloBad.pxX, mloBad.pxY); } if (d3 !== null && d4 !== null) { const X = d3, Y = d3 - SQ2 * d4; const { pxX, pxY } = mathToPx(ckCan, X, Y); drawStar(ckCtx, pxX, pxY, DOT_R * 2); }
@@ -238,6 +253,7 @@
         if (d3 === null || d4 === null) return; const X = d3, Y = d3 - SQ2 * d4; if (X * X + Y * Y > R * R) { msg.style.color = 'var(--err)'; msg.textContent = 'Invalid calculated lesion location'; redrawAll(); return; }
         const theta = Math.atan2(Y, X) * 180 / Math.PI; let hr = Math.round(((450 - theta) % 360) / 30); if (hr === 0) hr = 12; msg.style.color = 'var(--ok)'; msg.textContent = `Lesion at ${hr} o'clock`; redrawAll();
       }
+
       // CC click
       ccCan.addEventListener('click', ev => {
         const { x, y } = pxToMath(ccCan, ev.offsetX, ev.offsetY); ccBad = null; ccPt = null; d3 = null;
@@ -245,14 +261,39 @@
         if (ccBad || mloBad) { let errs = []; if (ccBad) errs.push('CC'); if (mloBad) errs.push('MLO'); msg.style.color = 'var(--aux)'; msg.textContent = `Click is outside the breast (${errs.join(' & ')})`; } else { msg.textContent = ''; }
         redrawAll(); calcClock();
       });
-      // MLO click
+
+     // MLO click
       mloCan.addEventListener('click', ev => {
         const { x, y } = pxToMath(mloCan, ev.offsetX, ev.offsetY); mloBad = null; mloPt = null; d4 = null;
         if (y <= -SQ3 * x && x * x + y * y <= R * R) { mloPt = { x, y }; d4 = (x - SQ3 * y) / 2; } else { mloBad = { pxX: ev.offsetX, pxY: ev.offsetY }; }
         if (ccBad || mloBad) { let errs = []; if (ccBad) errs.push('CC'); if (mloBad) errs.push('MLO'); msg.style.color = 'var(--aux)'; msg.textContent = `Click is outside the breast (${errs.join(' & ')})`; } else { msg.textContent = ''; }
         redrawAll(); calcClock();
       });
-      // initial draw
+
+      // --- drag MLO paddle on clock face ---
+      ckCan.addEventListener('pointerdown', ev => {
+        const { x, y } = pxToMath(ckCan, ev.offsetX, ev.offsetY);
+        const hx = 1.05 * R * Math.cos(mloAngle), hy = 1.05 * R * Math.sin(mloAngle);
+        const hx2 = -hx, hy2 = -hy;
+        dragSide = 0;
+        if (Math.hypot(x - hx, y - hy) <= 0.3) dragSide = 1;
+        else if (Math.hypot(x - hx2, y - hy2) <= 0.3) dragSide = -1;
+        dragMLO = dragSide !== 0;
+      });
+      ckCan.addEventListener('pointermove', ev => {
+        if (!dragMLO) return;
+        const { x, y } = pxToMath(ckCan, ev.offsetX, ev.offsetY);
+        let ang = Math.atan2(y * dragSide, x * dragSide);
+        if (x * dragSide <= 0) ang = 0;
+        if (ang > Math.PI / 4) ang = Math.PI / 4;
+        if (ang < 0) ang = 0;
+        mloAngle = ang;
+        redrawAll();
+      });
+      ckCan.addEventListener('pointerup', () => { dragMLO = false; dragSide = 0; });
+      ckCan.addEventListener('pointerleave', () => { dragMLO = false; dragSide = 0; });
+
+    // initial draw
       redrawAll();
     })();
 
@@ -267,7 +308,8 @@
       const msg = document.getElementById('msgL');
       const ccCtx = ccCan.getContext('2d'), mloCtx = mloCan.getContext('2d'), ckCtx = ckCan.getContext('2d');
       // State
-      let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d1 = null, d2 = null;
+      let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d1 = null, d2 = null,
+          mloAngle = Math.PI / 4, dragMLO = false, dragSide = 0;
       // Helpers
       function scale(c) { return Math.min(c.width, c.height) * PX_SCALE / R; }
       function center(c) { return { cx: c.width / 2, cy: c.height / 2 }; }
@@ -327,18 +369,30 @@
         ckCtx.lineTo( padHalf, -R * 1.05 * s);
         ckCtx.stroke();
 
-        /* —---- NEW:  45 degrees pink dotted line ----- */
+         /* —---- NEW:  MLO line and paddle ----- */
         ckCtx.setLineDash([6, 9]);            // dotted
         ckCtx.strokeStyle = '#e997ab';       // thin pink
         ckCtx.lineWidth = 2;
 
-        const r45 = (R / Math.SQRT2) * s;    // radius along 45°
+        const cosA = Math.cos(mloAngle), sinA = Math.sin(mloAngle);
         ckCtx.beginPath();
-        ckCtx.moveTo(r45, -r45);
-        ckCtx.lineTo(-r45, r45);              // stop at the circle, not beyond
+        ckCtx.moveTo(R * s * cosA, -R * s * sinA);
+        ckCtx.lineTo(-R * s * cosA, R * s * sinA); // stop at the circle, not beyond
         ckCtx.stroke();
 
         ckCtx.setLineDash([]);               // reset dashes
+
+        // draggable paddles at both ends of MLO line
+        ckCtx.strokeStyle = '#e997ab';
+        ckCtx.lineWidth = 8;
+        ckCtx.beginPath();
+        const px = R * 1.05 * s * cosA, py = -R * 1.05 * s * sinA;
+        const tCos = Math.sin(mloAngle), tSin = Math.cos(mloAngle);
+        ckCtx.moveTo(px - padHalf * tCos, py - padHalf * tSin);
+        ckCtx.lineTo(px + padHalf * tCos, py + padHalf * tSin);
+        ckCtx.moveTo(-px - padHalf * tCos, -py - padHalf * tSin);
+        ckCtx.lineTo(-px + padHalf * tCos, -py + padHalf * tSin);
+        ckCtx.stroke();
 
         // center dot above radiating lines
         ckCtx.fillStyle = '#666'; ckCtx.beginPath(); ckCtx.arc(0, 0, 10, 0, 2 * Math.PI); ckCtx.fill();
@@ -365,12 +419,36 @@
         redrawAll(); calcClock();
       });
       // MLO click
-      mloCan.addEventListener('click', ev => {
-        const { offsetX, offsetY } = ev; const { x, y } = pxToMath(mloCan, offsetX, offsetY); mloBad = null; mloPt = null; d2 = null;
-        if (y <= SQ3 * x && x * x + y * y <= R * R) { mloPt = { x, y }; d2 = (x + SQ3 * y) / 2; } else { mloBad = { pxX: offsetX, pxY: offsetY }; }
-        if (ccBad || mloBad) { let errs = []; if (ccBad) errs.push('CC'); if (mloBad) errs.push('MLO'); msg.style.color = 'var(--aux)'; msg.textContent = `Click is outside the breast (${errs.join(' & ')})`; } else { msg.textContent = ''; }
-        redrawAll(); calcClock();
-      });
+        mloCan.addEventListener('click', ev => {
+          const { offsetX, offsetY } = ev; const { x, y } = pxToMath(mloCan, offsetX, offsetY); mloBad = null; mloPt = null; d2 = null;
+          if (y <= SQ3 * x && x * x + y * y <= R * R) { mloPt = { x, y }; d2 = (x + SQ3 * y) / 2; } else { mloBad = { pxX: offsetX, pxY: offsetY }; }
+          if (ccBad || mloBad) { let errs = []; if (ccBad) errs.push('CC'); if (mloBad) errs.push('MLO'); msg.style.color = 'var(--aux)'; msg.textContent = `Click is outside the breast (${errs.join(' & ')})`; } else { msg.textContent = ''; }
+          redrawAll(); calcClock();
+        });
+
+        // --- drag MLO paddle on clock face ---
+        ckCan.addEventListener('pointerdown', ev => {
+          const { x, y } = pxToMath(ckCan, ev.offsetX, ev.offsetY);
+          const hx = 1.05 * R * Math.cos(mloAngle), hy = -1.05 * R * Math.sin(mloAngle);
+          const hx2 = -hx, hy2 = -hy;
+          dragSide = 0;
+          if (Math.hypot(x - hx, y - hy) <= 0.3) dragSide = 1;
+          else if (Math.hypot(x - hx2, y - hy2) <= 0.3) dragSide = -1;
+          dragMLO = dragSide !== 0;
+        });
+        ckCan.addEventListener('pointermove', ev => {
+          if (!dragMLO) return;
+          const { x, y } = pxToMath(ckCan, ev.offsetX, ev.offsetY);
+          let ang = Math.atan2(-y * dragSide, x * dragSide);
+          if (x * dragSide <= 0) ang = 0;
+          if (ang > Math.PI / 4) ang = Math.PI / 4;
+          if (ang < 0) ang = 0;
+          mloAngle = ang;
+          redrawAll();
+        });
+        ckCan.addEventListener('pointerup', () => { dragMLO = false; dragSide = 0; });
+        ckCan.addEventListener('pointerleave', () => { dragMLO = false; dragSide = 0; });
+
       // initial draw
       redrawAll();
     })();

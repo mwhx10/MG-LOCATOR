@@ -261,13 +261,36 @@
         if (ccPt) { const { pxX, pxY } = mathToPx(ccCan, ccPt.x, ccPt.y); ccCtx.fillStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.arc(pxX, pxY, DOT_R, 0, 2 * Math.PI); ccCtx.fill(); }
         if (ccBad) { drawBlueX(ccCtx, ccBad.pxX, ccBad.pxY); } 
       
-        // MLO point
+      // MLO point
         if (mloPt) { const { pxX, pxY } = mathToPx(mloCan, mloPt.x, mloPt.y); mloCtx.fillStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.arc(pxX, pxY, DOT_R, 0, 2 * Math.PI); mloCtx.fill(); }
-        if (mloBad) { drawBlueX(mloCtx, mloBad.pxX, mloBad.pxY); } if (d3 !== null && d4 !== null) { const X = d3, Y = d3 - SQ2 * d4; const { pxX, pxY } = mathToPx(ckCan, X, Y); drawStar(ckCtx, pxX, pxY, DOT_R * 2); }
+        if (mloBad) { drawBlueX(mloCtx, mloBad.pxX, mloBad.pxY); }
+        if (d3 !== null && d4 !== null) {
+          const alpha = Math.PI / 2, beta = mloAngle,
+                sinD = Math.sin(alpha - beta),
+                X = (d3 * Math.cos(beta) - d4 * Math.cos(alpha)) / sinD,
+                Y = (d3 * Math.sin(beta) - d4 * Math.sin(alpha)) / sinD;
+          const { pxX, pxY } = mathToPx(ckCan, X, Y);
+          drawStar(ckCtx, pxX, pxY, DOT_R * 2);
+        }
       }
       function calcClock() {
-        if (d3 === null || d4 === null) return; const X = d3, Y = d3 - SQ2 * d4; if (X * X + Y * Y > R * R) { msg.style.color = 'var(--err)'; msg.textContent = 'Invalid calculated lesion location'; redrawAll(); return; }
-        const theta = Math.atan2(Y, X) * 180 / Math.PI; let hr = Math.round(((450 - theta) % 360) / 30); if (hr === 0) hr = 12; msg.style.color = 'var(--ok)'; msg.textContent = `Lesion at ${hr} o'clock`; redrawAll();
+        if (d3 === null || d4 === null) return;
+        const alpha = Math.PI / 2, beta = mloAngle,
+              sinD = Math.sin(alpha - beta),
+              X = (d3 * Math.cos(beta) - d4 * Math.cos(alpha)) / sinD,
+              Y = (d3 * Math.sin(beta) - d4 * Math.sin(alpha)) / sinD;
+        if (X * X + Y * Y > R * R) {
+          msg.style.color = 'var(--err)';
+          msg.textContent = 'Invalid calculated lesion location';
+          redrawAll();
+          return;
+        }
+        const theta = Math.atan2(Y, X) * 180 / Math.PI;
+        let hr = Math.round(((450 - theta) % 360) / 30);
+        if (hr === 0) hr = 12;
+        msg.style.color = 'var(--ok)';
+        msg.textContent = `Lesion at ${hr} o'clock`;
+        redrawAll();
       }
 
       // CC click
@@ -308,12 +331,13 @@
         mloAngle = ang;
         redrawAll();
         updateMLOLabel();
+        calcClock();
       });
       ckCan.addEventListener('pointerup', () => {
         if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
-          ccPt = ccBad = mloPt = mloBad = null;
-          d3 = d4 = null;
-          msg.textContent = '';
+        //  ccPt = ccBad = mloPt = mloBad = null;
+        //  d3 = d4 = null;
+        //  msg.textContent = '';
         }
         dragMLO = false;
         dragSide = 0;
@@ -322,9 +346,9 @@
       });
       ckCan.addEventListener('pointerleave', () => {
         if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
-          ccPt = ccBad = mloPt = mloBad = null;
-          d3 = d4 = null;
-          msg.textContent = '';
+          //ccPt = ccBad = mloPt = mloBad = null;
+          //d3 = d4 = null;
+          //msg.textContent = '';
         }
         dragMLO = false;
         dragSide = 0;
@@ -461,11 +485,34 @@
         if (ccBad) { drawBlueX(ccCtx, ccBad.pxX, ccBad.pxY); } 
         // MLO point
         if (mloPt) { const { pxX, pxY } = mathToPx(mloCan, mloPt.x, mloPt.y); mloCtx.fillStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.arc(pxX, pxY, DOT_R, 0, 2 * Math.PI); mloCtx.fill(); }
-        if (mloBad) { drawBlueX(mloCtx, mloBad.pxX, mloBad.pxY); } if (d1 !== null && d2 !== null) { const x = d1, y = SQ2 * d2 - d1; const { pxX, pxY } = mathToPx(ckCan, x, y); drawStar(ckCtx, pxX, pxY, DOT_R * 2); }
+         if (mloBad) { drawBlueX(mloCtx, mloBad.pxX, mloBad.pxY); }
+        if (d1 !== null && d2 !== null) {
+          const alpha = Math.PI / 2, beta = Math.PI - mloAngle,
+                sinD = Math.sin(alpha - beta),
+                x = (d1 * Math.cos(beta) - d2 * Math.cos(alpha)) / sinD,
+                y = (d1 * Math.sin(beta) - d2 * Math.sin(alpha)) / sinD;
+          const { pxX, pxY } = mathToPx(ckCan, x, y);
+          drawStar(ckCtx, pxX, pxY, DOT_R * 2);
+        }
       }
       function calcClock() {
-        if (d1 === null || d2 === null) return; const x = d1, y = SQ2 * d2 - d1; if (x * x + y * y > R * R) { msg.style.color = 'var(--err)'; msg.textContent = 'Invalid calculated lesion location'; redrawAll(); return; }
-        const theta = Math.atan2(y, x) * 180 / Math.PI; let hr = Math.round(((450 - theta) % 360) / 30); if (hr === 0) hr = 12; msg.style.color = 'var(--ok)'; msg.textContent = `Lesion at ${hr} o'clock`; redrawAll();
+        if (d1 === null || d2 === null) return;
+        const alpha = Math.PI / 2, beta = Math.PI - mloAngle,
+              sinD = Math.sin(alpha - beta),
+              x = (d1 * Math.cos(beta) - d2 * Math.cos(alpha)) / sinD,
+              y = (d1 * Math.sin(beta) - d2 * Math.sin(alpha)) / sinD;
+        if (x * x + y * y > R * R) {
+          msg.style.color = 'var(--err)';
+          msg.textContent = 'Invalid calculated lesion location';
+          redrawAll();
+          return;
+        }
+        const theta = Math.atan2(y, x) * 180 / Math.PI;
+        let hr = Math.round(((450 - theta) % 360) / 30);
+        if (hr === 0) hr = 12;
+        msg.style.color = 'var(--ok)';
+        msg.textContent = `Lesion at ${hr} o'clock`;
+        redrawAll();
       }
       // CC click
       ccCan.addEventListener('click', ev => {
@@ -504,12 +551,13 @@
           mloAngle = ang;
           redrawAll();
           updateMLOLabel();
+          calcClock();
         });
         ckCan.addEventListener('pointerup', () => {
           if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
-            ccPt = ccBad = mloPt = mloBad = null;
-            d1 = d2 = null;
-            msg.textContent = '';
+            //ccPt = ccBad = mloPt = mloBad = null;
+            //d1 = d2 = null;
+            //msg.textContent = '';
           }
           dragMLO = false;
           dragSide = 0;
@@ -518,9 +566,9 @@
         });
         ckCan.addEventListener('pointerleave', () => {
           if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
-            ccPt = ccBad = mloPt = mloBad = null;
-            d1 = d2 = null;
-            msg.textContent = '';
+          //  ccPt = ccBad = mloPt = mloBad = null;
+          //  d1 = d2 = null;
+          //  msg.textContent = '';
           }
           dragMLO = false;
           dragSide = 0;

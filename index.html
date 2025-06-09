@@ -50,7 +50,8 @@
       border: 1px solid #555;
       border-radius: 8px;
       background: #fff;
-      cursor: crosshair
+      cursor: crosshair;
+      touch-action: none
     }
 
     #controls {
@@ -86,7 +87,7 @@
 
 <body>
   <h1>Mammographic Lesion Clock‑Face Locator</h1>
-  <div id="controls">
+   <div id="controls">
     <span class="sideLbl"><input type="radio" name="side" value="right" id="sideRight" checked> Right breast</span>
     <span class="sideLbl"><input type="radio" name="side" value="left" id="sideLeft"> Left breast</span>
   </div>
@@ -169,7 +170,7 @@
       function snapAngle(a) {
         const deg = (Math.PI / 2 - a) * 180 / Math.PI;
         for (const target of [0, 45, 60, 90]) {
-          if (Math.abs(deg - target) <= 3) {
+          if (Math.abs(deg - target) <= 5) {
             return Math.PI / 2 - target * Math.PI / 180;
           }
         }

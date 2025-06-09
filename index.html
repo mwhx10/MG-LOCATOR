@@ -99,7 +99,7 @@
         <h2>Right CC view</h2><canvas id="r-cc" width="320" height="320"></canvas>
       </div>
       <div>
-        <h2>Right MLO view</h2><canvas id="r-mlo" width="320" height="320"></canvas>
+        <h2 id="r-mlo-label">Right MLO view</h2><canvas id="r-mlo" width="320" height="320"></canvas>
       </div>
       <div>
         <h2>Clock‑face</h2><canvas id="r-clock" width="320" height="320"></canvas>
@@ -115,7 +115,7 @@
         <h2>Left CC view</h2><canvas id="l-cc" width="320" height="320"></canvas>
       </div>
       <div>
-        <h2>Left MLO view</h2><canvas id="l-mlo" width="320" height="320"></canvas>
+        <h2 id="l-mlo-label">Left MLO view</h2><canvas id="l-mlo" width="320" height="320"></canvas>
       </div>
       <div>
         <h2>Clock‑face</h2><canvas id="l-clock" width="320" height="320"></canvas>
@@ -148,6 +148,23 @@
       // State
       let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d3 = null, d4 = null,
           mloAngle = Math.PI / 4, dragMLO = false, dragSide = 0;
+
+      function updateMLOLabel() {
+        const deg = Math.round((Math.PI / 2 - mloAngle) * 180 / Math.PI);
+        const lbl = document.getElementById('r-mlo-label');
+        if (deg >= 90) lbl.textContent = 'Right ML view';
+        else lbl.textContent = `Right MLO view (${deg}\u00B0)`;
+      }
+
+      function snapAngle(a) {
+        const deg = (Math.PI / 2 - a) * 180 / Math.PI;
+        for (const target of [45, 60, 90]) {
+          if (Math.abs(deg - target) <= 18) {
+            return Math.PI / 2 - target * Math.PI / 180;
+          }
+        }
+        return a;
+      }
       // Helpers
       function scale(c) { return Math.min(c.width, c.height) * PX_SCALE / R; }
       function center(c) { return { cx: c.width / 2, cy: c.height / 2 }; }
@@ -180,7 +197,6 @@
 
          ckCtx.lineWidth = 1; ckCtx.strokeStyle = '#bbb';
         for (let k = 0; k < 12; k++) {
-          if (k === 3 || k === 9) continue;             // skip 12 and 6 o'clock
           const ang = k * Math.PI / 6;
           ckCtx.beginPath();
           ckCtx.moveTo(0, 0);
@@ -203,10 +219,10 @@
         ckCtx.strokeStyle = "#c8adf0";
         ckCtx.lineWidth = 7;
         ckCtx.beginPath();
-        ckCtx.moveTo(-padHalf,  R * 1.05 * s);   // top paddle
-        ckCtx.lineTo( padHalf,  R * 1.05 * s);
-        ckCtx.moveTo(-padHalf, -R * 1.05 * s);   // bottom paddle
-        ckCtx.lineTo( padHalf, -R * 1.05 * s);
+        ckCtx.moveTo(-padHalf,  R * 1.06 * s);   // top paddle
+        ckCtx.lineTo( padHalf,  R * 1.06 * s);
+        ckCtx.moveTo(-padHalf, -R * 1.06 * s);   // bottom paddle
+        ckCtx.lineTo( padHalf, -R * 1.06 * s);
         ckCtx.stroke();
 
         /* —---- NEW:  MLO line and paddle ----- */
@@ -226,7 +242,7 @@
         ckCtx.strokeStyle = '#e997ab';
         ckCtx.lineWidth = 7;
         ckCtx.beginPath();
-        const px = R * 1.05 * s * cosA, py = R * 1.05 * s * sinA;
+        const px = R * 1.06 * s * cosA, py = R * 1.06 * s * sinA;
         const tCos = Math.cos(mloAngle + Math.PI / 2), tSin = Math.sin(mloAngle + Math.PI / 2);
         ckCtx.moveTo(px - padHalf * tCos, py - padHalf * tSin);
         ckCtx.lineTo(px + padHalf * tCos, py + padHalf * tSin);
@@ -279,6 +295,7 @@
         if (Math.hypot(x - hx, y - hy) <= 0.3) dragSide = 1;
         else if (Math.hypot(x - hx2, y - hy2) <= 0.3) dragSide = -1;
         dragMLO = dragSide !== 0;
+        if (dragMLO) dragStart = mloAngle;
       });
       ckCan.addEventListener('pointermove', ev => {
         if (!dragMLO) return;
@@ -287,14 +304,37 @@
         if (x * dragSide <= 0) ang = 0;
         if (ang > Math.PI / 4) ang = Math.PI / 4;
         if (ang < 0) ang = 0;
+        ang = snapAngle(ang);
         mloAngle = ang;
         redrawAll();
+        updateMLOLabel();
       });
-      ckCan.addEventListener('pointerup', () => { dragMLO = false; dragSide = 0; });
-      ckCan.addEventListener('pointerleave', () => { dragMLO = false; dragSide = 0; });
+      ckCan.addEventListener('pointerup', () => {
+        if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
+          ccPt = ccBad = mloPt = mloBad = null;
+          d3 = d4 = null;
+          msg.textContent = '';
+        }
+        dragMLO = false;
+        dragSide = 0;
+        redrawAll();
+        updateMLOLabel();
+      });
+      ckCan.addEventListener('pointerleave', () => {
+        if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
+          ccPt = ccBad = mloPt = mloBad = null;
+          d3 = d4 = null;
+          msg.textContent = '';
+        }
+        dragMLO = false;
+        dragSide = 0;
+        redrawAll();
+        updateMLOLabel();
+      });
 
     // initial draw
       redrawAll();
+      updateMLOLabel();
     })();
 
     // ============================================================
@@ -310,6 +350,23 @@
       // State
       let ccPt = null, ccBad = null, mloPt = null, mloBad = null, d1 = null, d2 = null,
           mloAngle = Math.PI / 4, dragMLO = false, dragSide = 0;
+
+      function updateMLOLabel() {
+        const deg = Math.round((Math.PI / 2 - mloAngle) * 180 / Math.PI);
+        const lbl = document.getElementById('l-mlo-label');
+        if (deg >= 90) lbl.textContent = 'Left ML view';
+        else lbl.textContent = `Left MLO view (${deg}\u00B0)`;
+      }
+
+      function snapAngle(a) {
+        const deg = (Math.PI / 2 - a) * 180 / Math.PI;
+        for (const target of [45, 60, 90]) {
+          if (Math.abs(deg - target) <= 18) {
+            return Math.PI / 2 - target * Math.PI / 180;
+          }
+        }
+        return a;
+      }
       // Helpers
       function scale(c) { return Math.min(c.width, c.height) * PX_SCALE / R; }
       function center(c) { return { cx: c.width / 2, cy: c.height / 2 }; }
@@ -340,7 +397,6 @@
         
                 ckCtx.lineWidth = 1; ckCtx.strokeStyle = '#bbb';
         for (let k = 0; k < 12; k++) {
-          if (k === 3 || k === 9) continue;             // skip 12 and 6 o'clock
           const ang = k * Math.PI / 6;
           ckCtx.beginPath();
           ckCtx.moveTo(0, 0);
@@ -359,14 +415,14 @@
         ckCtx.setLineDash([]);
 
         // paddles tangent to the circle at 12 and 6 o'clock
-        const padHalf = R * 0.2 * s;      // paddle length in px
+        const padHalf = R * 0.17 * s;      // paddle length in px
         ckCtx.strokeStyle = "#c8adf0";
-        ckCtx.lineWidth = 8;
+        ckCtx.lineWidth = 7;
         ckCtx.beginPath();
-        ckCtx.moveTo(-padHalf,  R * 1.05 * s);   // top paddle
-        ckCtx.lineTo( padHalf,  R * 1.05 * s);
-        ckCtx.moveTo(-padHalf, -R * 1.05 * s);   // bottom paddle
-        ckCtx.lineTo( padHalf, -R * 1.05 * s);
+        ckCtx.moveTo(-padHalf,  R * 1.06 * s);   // top paddle
+        ckCtx.lineTo( padHalf,  R * 1.06 * s);
+        ckCtx.moveTo(-padHalf, -R * 1.06 * s);   // bottom paddle
+        ckCtx.lineTo( padHalf, -R * 1.06 * s);
         ckCtx.stroke();
 
          /* —---- NEW:  MLO line and paddle ----- */
@@ -384,9 +440,9 @@
 
         // draggable paddles at both ends of MLO line
         ckCtx.strokeStyle = '#e997ab';
-        ckCtx.lineWidth = 8;
+        ckCtx.lineWidth = 7;
         ckCtx.beginPath();
-        const px = R * 1.05 * s * cosA, py = -R * 1.05 * s * sinA;
+        const px = R * 1.06 * s * cosA, py = -R * 1.06 * s * sinA;
         const tCos = Math.sin(mloAngle), tSin = Math.cos(mloAngle);
         ckCtx.moveTo(px - padHalf * tCos, py - padHalf * tSin);
         ckCtx.lineTo(px + padHalf * tCos, py + padHalf * tSin);
@@ -427,7 +483,7 @@
         });
 
         // --- drag MLO paddle on clock face ---
-        ckCan.addEventListener('pointerdown', ev => {
+         ckCan.addEventListener('pointerdown', ev => {
           const { x, y } = pxToMath(ckCan, ev.offsetX, ev.offsetY);
           const hx = 1.05 * R * Math.cos(mloAngle), hy = -1.05 * R * Math.sin(mloAngle);
           const hx2 = -hx, hy2 = -hy;
@@ -435,6 +491,7 @@
           if (Math.hypot(x - hx, y - hy) <= 0.3) dragSide = 1;
           else if (Math.hypot(x - hx2, y - hy2) <= 0.3) dragSide = -1;
           dragMLO = dragSide !== 0;
+          if (dragMLO) dragStart = mloAngle;
         });
         ckCan.addEventListener('pointermove', ev => {
           if (!dragMLO) return;
@@ -443,14 +500,37 @@
           if (x * dragSide <= 0) ang = 0;
           if (ang > Math.PI / 4) ang = Math.PI / 4;
           if (ang < 0) ang = 0;
+          ang = snapAngle(ang);
           mloAngle = ang;
           redrawAll();
+          updateMLOLabel();
         });
-        ckCan.addEventListener('pointerup', () => { dragMLO = false; dragSide = 0; });
-        ckCan.addEventListener('pointerleave', () => { dragMLO = false; dragSide = 0; });
-
+        ckCan.addEventListener('pointerup', () => {
+          if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
+            ccPt = ccBad = mloPt = mloBad = null;
+            d1 = d2 = null;
+            msg.textContent = '';
+          }
+          dragMLO = false;
+          dragSide = 0;
+          redrawAll();
+          updateMLOLabel();
+        });
+        ckCan.addEventListener('pointerleave', () => {
+          if (dragMLO && Math.abs(mloAngle - dragStart) > 1e-6) {
+            ccPt = ccBad = mloPt = mloBad = null;
+            d1 = d2 = null;
+            msg.textContent = '';
+          }
+          dragMLO = false;
+          dragSide = 0;
+          redrawAll();
+          updateMLOLabel();
+        });
+        
       // initial draw
       redrawAll();
+      updateMLOLabel();
     })();
   </script>
 <footer id="credit">© 2025 Dr. Y.S.C. · Public use permitted · Code copyright retained</footer>

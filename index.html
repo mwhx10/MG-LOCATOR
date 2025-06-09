@@ -336,13 +336,13 @@
         const hx = 1.05 * R * Math.cos(mloAngle), hy = 1.05 * R * Math.sin(mloAngle);
         const hx2 = -hx, hy2 = -hy;
         dragSide = 0; dragSideCC = 0; dragMLO = dragCC = false;
-        if (Math.hypot(x - hx, y - hy) <= 0.5) { dragSide = 1; dragMLO = true; }
-        else if (Math.hypot(x - hx2, y - hy2) <= 0.5) { dragSide = -1; dragMLO = true; }
+        if (Math.hypot(x - hx, y - hy) <= 0.7) { dragSide = 1; dragMLO = true; }
+        else if (Math.hypot(x - hx2, y - hy2) <= 0.7) { dragSide = -1; dragMLO = true; }
         if (dragMLO) { dragStart = mloAngle; return; }
         const cx1 = 1.05 * R * Math.cos(ccAngle), cy1 = 1.05 * R * Math.sin(ccAngle);
         const cx2 = -cx1, cy2 = -cy1;
-        if (Math.hypot(x - cx1, y - cy1) <= 0.5) { dragSideCC = 1; dragCC = true; }
-        else if (Math.hypot(x - cx2, y - cy2) <= 0.5) { dragSideCC = -1; dragCC = true; }
+        if (Math.hypot(x - cx1, y - cy1) <= 0.7) { dragSideCC = 1; dragCC = true; }
+        else if (Math.hypot(x - cx2, y - cy2) <= 0.7) { dragSideCC = -1; dragCC = true; }
         if (dragCC) dragStartCC = ccAngle;
       });
       ckCan.addEventListener('pointermove', ev => {
@@ -587,13 +587,13 @@
         const hx = 1.05 * R * Math.cos(mloAngle), hy = -1.05 * R * Math.sin(mloAngle);
         const hx2 = -hx, hy2 = -hy;
         dragSide = 0; dragSideCC = 0; dragMLO = dragCC = false;
-        if (Math.hypot(x - hx, y - hy) <= 0.5) { dragSide = 1; dragMLO = true; }
-        else if (Math.hypot(x - hx2, y - hy2) <= 0.5) { dragSide = -1; dragMLO = true; }
+        if (Math.hypot(x - hx, y - hy) <= 0.7) { dragSide = 1; dragMLO = true; }
+        else if (Math.hypot(x - hx2, y - hy2) <= 0.7) { dragSide = -1; dragMLO = true; }
         if (dragMLO) { dragStart = mloAngle; return; }
         const cx1 = 1.05 * R * Math.cos(ccAngle), cy1 = -1.05 * R * Math.sin(ccAngle);
         const cx2 = -cx1, cy2 = -cy1;
-        if (Math.hypot(x - cx1, y - cy1) <= 0.5) { dragSideCC = 1; dragCC = true; }
-        else if (Math.hypot(x - cx2, y - cy2) <= 0.5) { dragSideCC = -1; dragCC = true; }
+        if (Math.hypot(x - cx1, y - cy1) <= 0.7) { dragSideCC = 1; dragCC = true; }
+        else if (Math.hypot(x - cx2, y - cy2) <= 0.7) { dragSideCC = -1; dragCC = true; }
         if (dragCC) dragStartCC = ccAngle;
       });
       ckCan.addEventListener('pointermove', ev => {

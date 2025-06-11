@@ -424,7 +424,7 @@
 
       function snapAngle(a) {
         const deg = (Math.PI / 2 - a) * 180 / Math.PI;
-        for (const target of [0, 45, 60, 90]) {
+        for (const target of [0, 45, 50, 55, 60, 90]) {
           if (Math.abs(deg - target) <= 3) {
             return Math.PI / 2 - target * Math.PI / 180;
           }

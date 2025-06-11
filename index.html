@@ -169,8 +169,8 @@
 
       function snapAngle(a) {
         const deg = (Math.PI / 2 - a) * 180 / Math.PI;
-        for (const target of [0, 45, 60, 90]) {
-          if (Math.abs(deg - target) <= 5) {
+        for (const target of [0, 45, 50, 55, 60, 90]) {
+          if (Math.abs(deg - target) <= 3) {
             return Math.PI / 2 - target * Math.PI / 180;
           }
         }
@@ -190,18 +190,18 @@
       // Base drawings
       function drawCCBase() {
         ccCtx.clearRect(0, 0, ccCan.width, ccCan.height); const s = scale(ccCan), { cx, cy } = center(ccCan); ccCtx.save(); ccCtx.translate(cx, cy); ccCtx.scale(1, -1);
-        ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, Math.PI / 2, 3 * Math.PI / 2); ccCtx.stroke();
+        ccCtx.strokeStyle = '#c8adf0'; ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, Math.PI / 2, 3 * Math.PI / 2); ccCtx.stroke();
         ccCtx.beginPath(); ccCtx.moveTo(0, -R * s); ccCtx.lineTo(0, R * s); ccCtx.stroke();
         ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 3; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(-R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
-        ccCtx.fillStyle = '#000'; ccCtx.beginPath(); ccCtx.arc(-R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
+        ccCtx.fillStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.arc(-R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
       }
       function drawMLOBase() {
         mloCtx.clearRect(0, 0, mloCan.width, mloCan.height); const s = scale(mloCan), { cx, cy } = center(mloCan); mloCtx.save(); mloCtx.translate(cx, cy); mloCtx.scale(1, -1);
-        mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, 5 * Math.PI / 3, 2 * Math.PI / 3, true); mloCtx.stroke();
+        mloCtx.strokeStyle = '#e997ab'; mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, 5 * Math.PI / 3, 2 * Math.PI / 3, true); mloCtx.stroke();
         const p1 = { x: Math.cos(5 * Math.PI / 3) * R, y: Math.sin(5 * Math.PI / 3) * R }; const p2 = { x: Math.cos(2 * Math.PI / 3) * R, y: Math.sin(2 * Math.PI / 3) * R };
         mloCtx.beginPath(); mloCtx.moveTo(p1.x * s, p1.y * s); mloCtx.lineTo(p2.x * s, p2.y * s); mloCtx.stroke();
         const nip = { x: -SQ3 * 1.5, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 3; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
-        mloCtx.fillStyle = '#000'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
+        mloCtx.fillStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
       }
       function drawClockBase() {
         ckCtx.clearRect(0, 0, ckCan.width, ckCan.height); const s = scale(ckCan), { cx, cy } = center(ckCan); ckCtx.save(); ckCtx.translate(cx, cy); ckCtx.scale(1, -1);
@@ -443,17 +443,17 @@
       // Base drawings
       function drawCCBase() {
         ccCtx.clearRect(0, 0, ccCan.width, ccCan.height); const s = scale(ccCan), { cx, cy } = center(ccCan); ccCtx.save(); ccCtx.translate(cx, cy); ccCtx.scale(1, -1);
-        ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, 3 * Math.PI / 2, Math.PI / 2); ccCtx.stroke();
+        ccCtx.strokeStyle = '#c8adf0'; ccCtx.lineWidth = 3; ccCtx.beginPath(); ccCtx.arc(0, 0, R * s, 3 * Math.PI / 2, Math.PI / 2); ccCtx.stroke();
         ccCtx.beginPath(); ccCtx.moveTo(0, -R * s); ccCtx.lineTo(0, R * s); ccCtx.stroke();
         ccCtx.setLineDash([6, 9]); ccCtx.lineWidth = 3; ccCtx.strokeStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.moveTo(0, 0); ccCtx.lineTo(R * s, 0); ccCtx.stroke(); ccCtx.setLineDash([]);
-        ccCtx.fillStyle = '#000'; ccCtx.beginPath(); ccCtx.arc(R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
+        ccCtx.fillStyle = '#c8adf0'; ccCtx.beginPath(); ccCtx.arc(R * s, 0, NIP_R, 0, 2 * Math.PI); ccCtx.fill(); ccCtx.restore();
       }
       function drawMLOBase() {
         mloCtx.clearRect(0, 0, mloCan.width, mloCan.height); const s = scale(mloCan), { cx, cy } = center(mloCan); mloCtx.save(); mloCtx.translate(cx, cy); mloCtx.scale(1, -1);
-        mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, Math.PI / 3, -2 * Math.PI / 3, true); mloCtx.stroke();
+        mloCtx.strokeStyle = '#e997ab'; mloCtx.lineWidth = 3; mloCtx.beginPath(); mloCtx.arc(0, 0, R * s, Math.PI / 3, -2 * Math.PI / 3, true); mloCtx.stroke();
         const p1 = { x: 1.5, y: 2.598 }, p2 = { x: -1.5, y: -2.598 }; mloCtx.beginPath(); mloCtx.moveTo(p1.x * s, p1.y * s); mloCtx.lineTo(p2.x * s, p2.y * s); mloCtx.stroke();
         const nip = { x: 2.598, y: -1.5 }; mloCtx.setLineDash([6, 9]); mloCtx.lineWidth = 3; mloCtx.strokeStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.moveTo(0, 0); mloCtx.lineTo(nip.x * s, nip.y * s); mloCtx.stroke(); mloCtx.setLineDash([]);
-        mloCtx.fillStyle = '#000'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
+        mloCtx.fillStyle = '#e997ab'; mloCtx.beginPath(); mloCtx.arc(nip.x * s, nip.y * s, NIP_R, 0, 2 * Math.PI); mloCtx.fill(); mloCtx.restore();
       }
       function drawClockBase() {
         ckCtx.clearRect(0, 0, ckCan.width, ckCan.height); const s = scale(ckCan), { cx, cy } = center(ckCan); ckCtx.save(); ckCtx.translate(cx, cy); ckCtx.scale(1, -1);
